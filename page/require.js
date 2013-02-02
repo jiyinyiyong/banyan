@@ -2,18 +2,27 @@
 var require;
 
 require = (function() {
-  var curr_src, get_base, join, module_cache, src_elems, url$;
+  var curr_src, get_base, join, src_elems, url$;
   String.prototype.__defineGetter__('end', function() {
     var end;
     end = this.length - 1;
     return this[end];
   });
-  module_cache = {};
+  Array.prototype.__defineGetter__('end', function() {
+    var end;
+    end = this.length - 1;
+    return this[end];
+  });
+  NodeList.prototype.__defineGetter__('end', function() {
+    var end;
+    end = this.length - 1;
+    return this[end];
+  });
   url$ = function(path) {
-    return path.match(/^https?:\/\/\S$/) != null;
+    return path.match(/^https?:\/\/\S+$/) != null;
   };
   src_elems = document.getElementsByTagName('script');
-  curr_src = src_elems[src_elems.length - 1].src;
+  curr_src = src_elems.end.src;
   get_base = function(path) {
     if (path.length === 0) {
       "";
@@ -54,16 +63,30 @@ require = (function() {
     path = path.replace(/\/\.\//g, "/").replace(/\/[^\/]+\/\.\.\//, "/");
     return (get_base(base)) + path;
   };
-  return function(name) {
-    var code, path, req;
-    path = join(curr_src, name);
-    req = new XMLHttpRequest;
-    req.open('get', path, false);
-    req.send();
-    code = "(function(){\n";
-    code += "var exports = {};";
-    code += "" + req.responseText;
-    code += "\nreturn exports;\n})()";
-    return require[path] = eval(code);
+  require = function(name) {
+    var code, path, path_str, req;
+    console.log(require.stack);
+    path = require.stack.end;
+    if (!url$(name)) {
+      path = join(path, name);
+    }
+    if (require.stack.length > 10) {
+      return;
+    }
+    console.log(require.cache[path]);
+    if (require.cache[path] != null) {
+      return require.cache[path];
+    } else {
+      path_str = JSON.stringify(path);
+      req = new XMLHttpRequest;
+      req.open('get', path, false);
+      req.send();
+      require.cache[path] = {};
+      code = "(function(){\n" + 'var module = {' + ("path: " + path_str + "};\n") + ("require.stack.push(" + path_str + ");") + "var exports = {};\n" + req.responseText + 'require.stack.pop();\n' + "\nreturn exports;\n})()";
+      return require.cache[path] = eval(code);
+    }
   };
+  require.cache = {};
+  require.stack = [curr_src];
+  return require;
 })();

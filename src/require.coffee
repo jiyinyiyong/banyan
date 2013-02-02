@@ -5,12 +5,18 @@ require = do ->
     end = @length - 1
     @[end]
 
-  module_cache = {}
+  Array.prototype.__defineGetter__ 'end', ->
+    end = @length - 1
+    @[end]
 
-  url$ = (path) -> path.match(/^https?:\/\/\S$/)?
+  NodeList.prototype.__defineGetter__ 'end', ->
+    end = @length - 1
+    @[end]
+
+  url$ = (path) -> path.match(/^https?:\/\/\S+$/)?
 
   src_elems = document.getElementsByTagName 'script'
-  curr_src = src_elems[src_elems.length-1].src
+  curr_src = src_elems.end.src
 
   get_base = (path) ->
     if path.length is 0 then ""
@@ -40,15 +46,36 @@ require = do ->
     path = path
       .replace(/\/\.\//g, "/")
       .replace(/\/[^\/]+\/\.\.\//, "/")
+
     (get_base base) + path
 
-  (name) ->
-    path = join curr_src, name
-    req = new XMLHttpRequest
-    req.open 'get', path, no
-    req.send()
-    code = "(function(){\n"
-    code+= "var exports = {};"
-    code+= "#{req.responseText}"
-    code+= "\nreturn exports;\n})()"
-    require[path] = eval code
+  require = (name) ->
+    console.log require.stack
+    path = require.stack.end
+    unless url$ name
+      path = join path, name
+    if require.stack.length > 10 then return
+    console.log require.cache[path]
+    if require.cache[path]?
+      require.cache[path]
+    else
+      path_str = JSON.stringify path
+      # console.log path_str
+      req = new XMLHttpRequest
+      req.open 'get', path, no
+      req.send()
+      require.cache[path] = {}
+      code = "(function(){\n" +
+        'var module = {' +
+        "path: #{path_str}};\n" +
+        "require.stack.push(#{path_str});" +
+        "var exports = {};\n" +
+        req.responseText +
+        'require.stack.pop();\n' +
+        "\nreturn exports;\n})()"
+      require.cache[path] = eval code
+
+  require.cache = {}
+  require.stack = [curr_src]
+
+  require
