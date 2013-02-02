@@ -6,4 +6,13 @@ data = require 'nest/nested-lib.js'
 
 console.log data
 
-console.log (require '../readme.md')
+readme = require '../readme.md'
+
+page = document.querySelector "#page"
+page.innerText = readme
+
+css = require "./page.css"
+style = document.createElement "style"
+style.setAttribute "scoped", "scoped"
+style.innerHTML = css
+page.appendChild style
