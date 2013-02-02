@@ -2,4 +2,4 @@
 
 console.log('load parent dir');
 
-require('http://localhost/banyan/page/nest/nested-lib.js');
+require("http://" + location.origin + "/banyan/page/nest/nested-lib.js");

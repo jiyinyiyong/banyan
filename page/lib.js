@@ -8,3 +8,5 @@ exports.say = function() {
 data = require('nest/nested-lib.js');
 
 console.log(data);
+
+console.log(require('../readme.md'));
