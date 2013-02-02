@@ -1,4 +1,4 @@
 
 console.log 'load parent dir'
 
-require 'http://localhost/banyan/page/nest/nested-lib.js'
+require 'http://jiyinyiyong.github.com/banyan/page/nest/nested-lib.js'
