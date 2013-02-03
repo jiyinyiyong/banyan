@@ -66,18 +66,24 @@ require = do ->
       # console.log (get_ext path)
       if (get_ext path) is 'js'
         require.cache[path] = {}
-        code = "(function(){\n" +
+        code = "require.cache[#{path_str}] =" +
+          "(function(){\n" +
           "var module = {path: #{path_str}};\n" +
           "require.stack.push(module.path);\n" +
           "var exports = {};\n" +
           req.responseText + '\n' +
           'require.stack.pop();\n' +
+          "console.log('define', require.cache);" +
+          "require.cache[module.path] = exports;\n" +
           "return exports;\n})()"
-        try
-          require.cache[path] = eval code
-        catch err
-          console.log "\n\n\n", req.responseText
-          throw err
+        script = document.createElement 'script'
+        script.defer = no
+        script.async = no
+        document.body.appendChild script
+        script.src = "data:text/javascript;charset=utf-8," +
+          (encodeURIComponent code)
+        console.log "get", require.cache
+        require.cache[path]
       else if get_ext path is 'json'
         require.cache[path] = JSON.parse "(#{req.responseText})"
       else
