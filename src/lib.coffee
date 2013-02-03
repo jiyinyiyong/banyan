@@ -16,3 +16,5 @@ style = document.createElement "style"
 style.setAttribute "scoped", "scoped"
 style.innerHTML = css
 page.appendChild style
+
+console.log "loaded lib!!!!!"

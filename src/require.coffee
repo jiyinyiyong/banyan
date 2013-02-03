@@ -67,14 +67,17 @@ require = do ->
       if (get_ext path) is 'js'
         require.cache[path] = {}
         code = "(function(){\n" +
-          'var module = {' +
-          "path: #{path_str}};\n" +
-          "require.stack.push(#{path_str});" +
+          "var module = {path: #{path_str}};\n" +
+          "require.stack.push(module.path);\n" +
           "var exports = {};\n" +
           req.responseText + '\n' +
           'require.stack.pop();\n' +
           "return exports;\n})()"
-        require.cache[path] = eval code
+        try
+          require.cache[path] = eval code
+        catch err
+          console.log "\n\n\n", req.responseText
+          throw err
       else if get_ext path is 'json'
         require.cache[path] = JSON.parse "(#{req.responseText})"
       else
