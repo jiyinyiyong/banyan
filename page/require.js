@@ -67,7 +67,7 @@ require = (function() {
     return extname;
   };
   require = function(name) {
-    var code, path, path_str, req, script;
+    var code, path, path_str, req;
     path = require.stack.end;
     if (!url$(name)) {
       path = join(path, name);
@@ -81,14 +81,13 @@ require = (function() {
       req.send();
       if ((get_ext(path)) === 'js') {
         require.cache[path] = {};
-        code = ("require.cache[" + path_str + "] =") + "(function(){\n" + ("var module = {path: " + path_str + "};\n") + "require.stack.push(module.path);\n" + "var exports = {};\n" + req.responseText + '\n' + 'require.stack.pop();\n' + "console.log('define', require.cache);" + "require.cache[module.path] = exports;\n" + "return exports;\n})()";
-        script = document.createElement('script');
-        script.defer = false;
-        script.async = false;
-        document.body.appendChild(script);
-        script.src = "data:text/javascript;charset=utf-8," + (encodeURIComponent(code));
-        console.log("get", require.cache);
-        return require.cache[path];
+        code = "(function(){\n" + ("var module = {path: " + path_str + "};\n") + "require.stack.push(module.path);\n" + "var exports = {};\n" + req.responseText + '\n' + 'require.stack.pop();\n' + "return exports;\n})()";
+        try {
+          return require.cache[path] = eval(code);
+        } catch (err) {
+          console.log("\n\n\n", req.responseText);
+          throw err;
+        }
       } else if (get_ext(path === 'json')) {
         return require.cache[path] = JSON.parse("(" + req.responseText + ")");
       } else {

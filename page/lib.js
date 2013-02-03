@@ -26,3 +26,5 @@ style.innerHTML = css;
 page.appendChild(style);
 
 console.log("loaded lib!!!!!");
+
+print (ok);
