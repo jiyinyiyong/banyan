@@ -72,12 +72,9 @@ require = do ->
           "var exports = {};\n" +
           req.responseText + '\n' +
           'require.stack.pop();\n' +
-          "return exports;\n})()"
-        try
-          require.cache[path] = eval code
-        catch err
-          console.log "\n\n\n", req.responseText
-          throw err
+          "return exports;\n})()\n" +
+          "//@ sourceURL=#{name}"
+        require.cache[path] = eval code
       else if get_ext path is 'json'
         require.cache[path] = JSON.parse "(#{req.responseText})"
       else
@@ -87,3 +84,8 @@ require = do ->
   require.stack = [curr_src]
 
   require
+
+do ->
+  script = document.getElementsByTagName("script").end
+  entry = script.getAttribute("entry")
+  require entry

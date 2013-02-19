@@ -81,13 +81,8 @@ require = (function() {
       req.send();
       if ((get_ext(path)) === 'js') {
         require.cache[path] = {};
-        code = "(function(){\n" + ("var module = {path: " + path_str + "};\n") + "require.stack.push(module.path);\n" + "var exports = {};\n" + req.responseText + '\n' + 'require.stack.pop();\n' + "return exports;\n})()";
-        try {
-          return require.cache[path] = eval(code);
-        } catch (err) {
-          console.log("\n\n\n", req.responseText);
-          throw err;
-        }
+        code = "(function(){\n" + ("var module = {path: " + path_str + "};\n") + "require.stack.push(module.path);\n" + "var exports = {};\n" + req.responseText + '\n' + 'require.stack.pop();\n' + "return exports;\n})()\n" + ("//@ sourceURL=" + name);
+        return require.cache[path] = eval(code);
       } else if (get_ext(path === 'json')) {
         return require.cache[path] = JSON.parse("(" + req.responseText + ")");
       } else {
@@ -98,4 +93,11 @@ require = (function() {
   require.cache = {};
   require.stack = [curr_src];
   return require;
+})();
+
+(function() {
+  var entry, script;
+  script = document.getElementsByTagName("script").end;
+  entry = script.getAttribute("entry");
+  return require(entry);
 })();
