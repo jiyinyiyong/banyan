@@ -51,8 +51,8 @@ require = do ->
   require = (name) ->
     # console.log require.stack
     path = require.stack.end
-    unless url$ name
-      path = join path, name
+    if require.map[name]? then path = require.map[name]
+    else unless url$ name then path = join path, name
     # if require.stack.length > 10 then return
     # console.log require.cache[path]
     if require.cache[path]?
@@ -80,6 +80,7 @@ require = do ->
       else
         require.cache[path] = req.responseText
 
+  require.map = {}
   require.cache = {}
   require.stack = [curr_src]
 

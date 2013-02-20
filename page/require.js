@@ -69,7 +69,9 @@ require = (function() {
   require = function(name) {
     var code, path, path_str, req;
     path = require.stack.end;
-    if (!url$(name)) {
+    if (require.map[name] != null) {
+      path = require.map[name];
+    } else if (!url$(name)) {
       path = join(path, name);
     }
     if (require.cache[path] != null) {
@@ -90,6 +92,7 @@ require = (function() {
       }
     }
   };
+  require.map = {};
   require.cache = {};
   require.stack = [curr_src];
   return require;
