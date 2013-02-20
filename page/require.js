@@ -81,20 +81,15 @@ require = (function() {
       req = new XMLHttpRequest;
       req.open('get', path, false);
       req.send();
-      if ((get_ext(path)) === 'js') {
-        require.cache[path] = {};
-        code = "(function(){\n" + ("var module = {path: " + path_str + "};\n") + "require.stack.push(module.path);\n" + "var exports = {};\n" + req.responseText + '\n' + 'require.stack.pop();\n' + "return exports;\n})()\n" + ("//@ sourceURL=" + name);
-        return require.cache[path] = eval(code);
-      } else if (get_ext(path === 'json')) {
-        return require.cache[path] = JSON.parse("(" + req.responseText + ")");
-      } else {
-        return require.cache[path] = req.responseText;
-      }
+      return require.cache[path] = (get_ext(path)) === 'js' ? (require.cache[path] = {}, code = "(function(){\n" + ("var module = {path: " + path_str + "};\n") + "require.stack.push(module.path);\n" + "var exports = {};\n" + req.responseText + '\n' + 'require.stack.pop();\n' + "return exports;\n})()\n" + ("//@ sourceURL=" + name), eval(code)) : get_ext(path === 'json') ? JSON.parse("(" + req.responseText + ")") : req.responseText;
     }
   };
   require.map = {};
   require.cache = {};
   require.stack = [curr_src];
+  require.resolve = function(name) {
+    return join(require.stack.end, name);
+  };
   return require;
 })();
 

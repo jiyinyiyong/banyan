@@ -55,34 +55,34 @@ require = do ->
     else unless url$ name then path = join path, name
     # if require.stack.length > 10 then return
     # console.log require.cache[path]
-    if require.cache[path]?
-      require.cache[path]
+    if require.cache[path]? then require.cache[path]
     else
       path_str = JSON.stringify path
       # console.log path_str
       req = new XMLHttpRequest
-      req.open 'get', path, no
+      req.open('get', path, no)
       req.send()
       # console.log (get_ext path)
-      if (get_ext path) is 'js'
-        require.cache[path] = {}
-        code = "(function(){\n" +
-          "var module = {path: #{path_str}};\n" +
-          "require.stack.push(module.path);\n" +
-          "var exports = {};\n" +
-          req.responseText + '\n' +
-          'require.stack.pop();\n' +
-          "return exports;\n})()\n" +
-          "//@ sourceURL=#{name}"
-        require.cache[path] = eval code
-      else if get_ext path is 'json'
-        require.cache[path] = JSON.parse "(#{req.responseText})"
-      else
-        require.cache[path] = req.responseText
+      require.cache[path] =
+        if (get_ext path) is 'js'
+          require.cache[path] = {}
+          code = "(function(){\n" +
+            "var module = {path: #{path_str}};\n" +
+            "require.stack.push(module.path);\n" +
+            "var exports = {};\n" +
+            req.responseText + '\n' +
+            'require.stack.pop();\n' +
+            "return exports;\n})()\n" +
+            "//@ sourceURL=#{name}"
+          eval code
+        else if get_ext path is 'json'
+          JSON.parse "(#{req.responseText})"
+        else req.responseText
 
   require.map = {}
   require.cache = {}
   require.stack = [curr_src]
+  require.resolve = (name) -> join require.stack.end, name
 
   require
 

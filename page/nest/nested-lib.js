@@ -7,3 +7,5 @@ exports.data = "I'm nested";
 require('../parent-dir.js');
 
 console.log(require("./data.json"));
+
+console.log(require.resolve("resolve"));
