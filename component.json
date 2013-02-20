@@ -1,0 +1,6 @@
+
+{
+  "name": "banyan",
+  "version": "0.0.3",
+  "main": "./page/require.js"
+}

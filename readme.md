@@ -19,6 +19,9 @@ Here's the code for HTML:
 <script src="require.js" entry="main.js" defer></script>
 ```
 
+There's a `require.solve` method for parsing a relative path to an obsolute one.  
+And a `require.map.aliasName = "http://url"` method for wirting an alias name.  
+
 Banyan only works in Chrome for I modified `prototype`.  
 The code is not rubost. Only `js` and `json` files can be recoginized.  
 Files with other extension name are only texts.  
